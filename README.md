@@ -1,5 +1,6 @@
 # Geoip2 api
 
+基于 `Maxmind DB` 和 `Nginx` 实现的IP信息查询接口
 
 ## 快速启动
 
