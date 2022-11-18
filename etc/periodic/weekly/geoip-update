@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+
+wkit geoip-get
+wkit nginx reload
