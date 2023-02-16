@@ -7,7 +7,7 @@
 ## 快速启动
 
 ```
-  docker run -d -p 80:80 -p 443:443 rehiy/geoip-api
+  docker run -d -p 80 -p 443 rehiy/geoip-api
 ```
 
 > 浏览器访问 http://your-docker-ip/help
@@ -15,7 +15,7 @@
 ## 设置证书
 
 ```
-docker run -d -P \
+docker run -d -p 80 -p 443 \
     -v /etc/nginx/certs/default.cer \
     -v /etc/nginx/certs/default.key \
     rehiy/geoip-api
@@ -24,7 +24,7 @@ docker run -d -P \
 ## 更换数据库
 
 ```
-docker run -d -P \
+docker run -d -p 80 -p 443 \
     -v your.mmdb:usr/share/geoip/city-lite.mmdb \
     rehiy/geoip-api
 ```
