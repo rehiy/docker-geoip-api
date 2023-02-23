@@ -5,6 +5,7 @@
 此项目使用了免费版 `Maxmind DB` 数据，归属地可能不够精确。读者可自行更换更好的兼容库。
 
 演示: https://ipip.rehi.org
+帮助: https://ipip.rehi.org/help
 
 ## 快速启动
 
