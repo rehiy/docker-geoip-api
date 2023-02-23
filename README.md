@@ -4,7 +4,7 @@
 
 此项目使用了免费版 `Maxmind DB` 数据，归属地可能不够精确。读者可自行更换更好的兼容库。
 
-演示: http://ipip.rehi.org
+演示: https://ipip.rehi.org
 
 ## 快速启动
 
