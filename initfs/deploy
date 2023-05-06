@@ -7,7 +7,7 @@ chmod +x `grep -rl '^#!/bin' /ifs`
 
 wkit geoip-install
 
-apk add --no-cache goaccess
+apk add --no-cache openssh-client goaccess
 rm -f /etc/goaccess/goaccess.conf
 
 cp -a /ifs/etc /

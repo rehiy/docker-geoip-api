@@ -22,11 +22,6 @@ export NGXLOG=/var/log/nginx/access.log
 
 #################################################
 
-if ! grep -q "access\.log" /etc/nginx/conf.d/http.conf; then
-    sed -i 's/$host.log/access.log/' /etc/nginx/conf.d/http.conf
-    wkit nginx reload
-fi
-
 #################################################
 
 mkdir -p $GAPATH/gadata $GAPATH/report
