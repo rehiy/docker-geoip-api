@@ -4,9 +4,9 @@
 
 此项目使用了免费版 `Maxmind DB` 数据，归属地可能不够精确。读者可自行更换更好的兼容库。
 
-功能预览: https://ipip.rehi.org
-
-支持参数: https://ipip.rehi.org/help
+- 功能预览: https://ipip.rehi.org
+- 支持参数: https://ipip.rehi.org/help
+- 日志分析报告: https://ipip.rehi.org/report
 
 ## 快速启动
 
