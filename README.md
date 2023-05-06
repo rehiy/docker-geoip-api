@@ -10,25 +10,26 @@
 
 ## 快速启动
 
-```
+```shell
   docker run -d -p 80 -p 443 rehiy/geoip-api
 ```
 
 > 浏览器访问 http://your-docker-ip/help
 
-## 设置证书
+## 完整配置
 
-```
+```shell
 docker run -d -p 80 -p 443 \
-    -v /etc/nginx/certs/default.cer \
-    -v /etc/nginx/certs/default.key \
+    -v ./data/default.cer:/etc/nginx/certs/default.cer \
+    -v ./data/default.key:/etc/nginx/certs/default.key \
+    -v ./data/goaccess.conf:/etc/goaccess/goaccess.conf \
+    -v ./data/city.mmdb:/usr/share/geoip/city-lite.mmdb \
+    -v ./data/report:/var/www/default/report \
     rehiy/geoip-api
 ```
 
-## 更换数据库
-
-```
-docker run -d -p 80 -p 443 \
-    -v your.mmdb:usr/share/geoip/city-lite.mmdb \
-    rehiy/geoip-api
-```
+- `/data/default.cer` 证书文件
+- `/data/default.key` 私钥文件
+- `/data/goaccess.conf` 日志分析配置文件
+- `/data/city.mmdb` Maxmind DB 数据库文件
+- `/data/report` 日志分析报告目录

@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+
+echo "treatment aging log for nginx"
+
+kill `pidof goaccess`
+/etc/local.d/s8-goaccess
+
+log=`find /var/log/nginx -name "access.log-*[0-9]"`
+out=/var/www/default/report/archive/${log##*-}
+dbp=/var/www/default/report/database
+
+goaccess $log --process-and-exit --agent-list --real-os --persist --restore --db-path=$dbp
+
+goaccess -o $out.json --agent-list --real-os --restore --db-path=$dbp
+goaccess -o $out.html --agent-list --real-os --restore --db-path=$dbp
