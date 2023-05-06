@@ -6,5 +6,5 @@ if ! grep -q "access\.log" /etc/nginx/conf.d/http.conf; then
 fi
 
 if [ ! -e /etc/nginx/http.d/auth_basic ]; then
-    echo admin:$(echo $REPORT_PWD | openssl passwd -stdin -apr1) | base64 > /etc/nginx/http.d/auth_basic
+    echo admin:$(echo $REPORT_PWD | openssl passwd -stdin -apr1) > /etc/nginx/http.d/auth_basic
 fi
