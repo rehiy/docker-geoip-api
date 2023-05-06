@@ -1,0 +1,14 @@
+#!/bin/sh -e
+#
+
+chmod +x `grep -rl '^#!/bin' /ifs`
+
+# install apps
+
+apk add --no-cache goaccess
+
+cp -a /ifs/etc /
+
+# clean system
+
+rm -r /ifs

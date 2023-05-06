@@ -17,15 +17,23 @@
 #   $http_user_agent    %u
 #
 
+export GAPATH=/var/www/default
+export NGXLOG=/var/log/nginx/access.log
+
 #################################################
 
-export GAPATH=/var/www/default
+if ! grep -q "access\.log" /etc/nginx/conf.d/http.conf; then
+    sed -i 's/$host.log/access.log/' /etc/nginx/conf.d/http.conf
+    wkit nginx reload
+fi
 
-if ! type goaccess >/dev/null 2>&1; then
+#################################################
+
+mkdir -p $GAPATH/gadata $GAPATH/report
+
+if [ ! -e /etc/goaccess/goaccess.conf ]; then
 
 ########
-
-apk add goaccess
 
 cat <<EOF >/etc/goaccess/goaccess.conf
 # Date/Time Format Option
@@ -36,7 +44,7 @@ log_format %h - %e [%d:%t %^] "%r" %s %b "%R" "%u" "%^" %^ %^ %^ %T
 port 8484
 daemonize true
 real-time-html true
-ws-url ws://localhost:8484/report/d
+ws-url $REPORT_URL/report/d
 # GeoIP Options
 geoip-database /usr/share/geoip/city-lite.mmdb
 # Persistence Options
@@ -48,17 +56,6 @@ EOF
 fi
 
 #################################################
-
-export NGXLOG=/var/log/nginx/access.log
-
-if ! grep -q "access\.log" /etc/nginx/conf.d/http.conf; then
-    sed -i 's/$host.log/access.log/' /etc/nginx/conf.d/http.conf
-    wkit nginx reload
-fi
-
-#################################################
-
-mkdir -p $GAPATH/gadata $GAPATH/report
 
 goaccess $NGXLOG \
     --output=$GAPATH/report/index.html
