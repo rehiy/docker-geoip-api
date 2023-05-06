@@ -1,6 +1,0 @@
-#!/bin/sh
-#
-
-cp -av /ifs/etc/* /etc/
-
-rm -rf /ifs

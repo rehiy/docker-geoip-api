@@ -32,4 +32,3 @@ docker run -d -p 80 -p 443 \
     -v your.mmdb:usr/share/geoip/city-lite.mmdb \
     rehiy/geoip-api
 ```
-
