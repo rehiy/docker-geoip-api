@@ -5,7 +5,10 @@ chmod +x `grep -rl '^#!/bin' /ifs`
 
 # install apps
 
+wkit geoip-install
+
 apk add --no-cache goaccess
+rm -f /etc/goaccess/goaccess.conf
 
 cp -a /ifs/etc /
 
