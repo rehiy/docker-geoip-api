@@ -1,13 +1,13 @@
 FROM rehiy/webox:nginx
 
-LABEL version="1.0.0" \
+LABEL version="1.1.0" \
       maintainer="wang@rehiy.com"
 
 ENV REPORT_PWD="admin"
 ENV REPORT_URL="ws://localhost:80"
 
-ADD initfs /ifs
-RUN sh /ifs/deploy
+ADD initfs /tmp
+RUN sh /tmp/deploy
 
 ENTRYPOINT ["/sbin/init"]
 
