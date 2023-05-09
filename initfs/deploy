@@ -1,8 +1,10 @@
 #!/bin/sh -e
 #
 
-wkit geoip-install
-wkit goaccess-install
+wkit geoip-update
+
+mv -f /etc/nginx/http.d/geoip /etc/nginx/http.d/geoip.conf
+mv -f /etc/nginx/http.d/geoip_proxy /etc/nginx/http.d/geoip_proxy.conf
 
 cp -a /ifs/etc /
 
