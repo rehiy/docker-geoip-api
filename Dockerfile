@@ -1,4 +1,4 @@
-FROM rehiy/webox:nginx
+FROM rehiy/webox:nginx-geoip
 
 LABEL version="1.1.1" \
       maintainer="wang@rehiy.com"
