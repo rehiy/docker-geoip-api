@@ -2,6 +2,7 @@
 #
 
 wkit geoip-update
+wkit module-add goaccess
 
 mv -f /etc/nginx/http.d/geoip /etc/nginx/http.d/geoip.conf
 mv -f /etc/nginx/http.d/geoip_proxy /etc/nginx/http.d/geoip_proxy.conf

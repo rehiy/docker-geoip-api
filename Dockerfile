@@ -1,6 +1,6 @@
 FROM rehiy/webox:nginx-geoip
 
-LABEL version="1.1.1" \
+LABEL version="1.1.2" \
       maintainer="wang@rehiy.com"
 
 ENV REPORT_PWD="admin"
