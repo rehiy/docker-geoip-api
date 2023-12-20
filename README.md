@@ -18,10 +18,10 @@
 
 ## 完整配置
 
-下列所有配置均为可选项目，但建议至少修改 `REPORT_PWD` 和 `REPORT_URL` 两个参数。
+下列所有配置均为可选项目，但建议至少修改 `GOACCESS_REPORT_PWD` 和 `GOACCESS_REPORT_URL` 两个参数。
 
-- `REPORT_PWD` 日志分析报告密码
-- `REPORT_URL` 日志分析报告地址
+- `GOACCESS_REPORT_PWD` 日志分析报告密码
+- `GOACCESS_REPORT_URL` 日志分析报告地址
 - `/etc/nginx/certs/default.cer` SSL证书文件
 - `/etc/nginx/certs/default.key` SSL私钥文件
 - `/usr/share/geoip/city-lite.mmdb` Maxmind DB 数据库文件
@@ -30,8 +30,8 @@
 
 ```shell
 docker run -d -p 80 -p 443 \
-    -e "REPORT_PWD=admin" \
-    -e "REPORT_URL=wss://ipip.rehi.org:443" \
+    -e "GOACCESS_REPORT_PWD=admin" \
+    -e "GOACCESS_REPORT_URL=wss://ipip.rehi.org:443" \
     -v ./data/default.cer:/etc/nginx/certs/default.cer \
     -v ./data/default.key:/etc/nginx/certs/default.key \
     -v ./data/city.mmdb:/usr/share/geoip/city-lite.mmdb \
