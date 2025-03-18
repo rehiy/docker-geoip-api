@@ -25,7 +25,7 @@
 - `/etc/nginx/certs/default.cer` SSL证书文件
 - `/etc/nginx/certs/default.key` SSL私钥文件
 - `/usr/share/geoip/city-lite.mmdb` Maxmind DB 数据库文件
-- `/var/www/default/report` 日志分析报告目录
+- `/var/lib/goaccess` 日志分析报告目录
 - `/var/log/nginx` Nginx 日志目录
 
 ```shell
@@ -35,7 +35,7 @@ docker run -d -p 80 -p 443 \
     -v ./data/default.cer:/etc/nginx/certs/default.cer \
     -v ./data/default.key:/etc/nginx/certs/default.key \
     -v ./data/city.mmdb:/usr/share/geoip/city-lite.mmdb \
-    -v ./data/report:/var/www/default/report \
+    -v ./data/report:/var/lib/goaccess \
     -v ./data/logs:/var/log/nginx \
     rehiy/geoip-api
 ```
