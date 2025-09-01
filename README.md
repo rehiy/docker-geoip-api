@@ -13,7 +13,7 @@
 使用如下代码启动后，浏览器访问 <http://your-docker-ip/help>
 
 ```shell
-  docker run -d -p 80 -p 443 rehiy/geoip-api
+  docker run -d -p 80:80 -p 443:443 rehiy/geoip-api
 ```
 
 ## 完整配置
@@ -29,7 +29,7 @@
 - `/var/log/nginx` Nginx 日志目录
 
 ```shell
-docker run -d -p 80 -p 443 \
+docker run -d -p 80:80 -p 443:443 \
     -e "GOACCESS_REPORT_PWD=admin" \
     -e "GOACCESS_REPORT_URL=wss://ipip.rehi.org:443" \
     -v ./data/default.cer:/etc/nginx/certs/default.cer \
