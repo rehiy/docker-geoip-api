@@ -220,10 +220,11 @@
         let historyIndex = -1;
         let commandHistory = [];
         let chineseMode = navigator.language.startsWith('zh');
+        let chineseCmds = 'help,info,json,simple,country,province,city,district'
 
         const commands = {
-            clear: () => { clearTerminal(); return ''; },
-            cls: () => { clearTerminal(); return ''; }
+            cls: () => clearTerminal() || '',
+            clear: () => clearTerminal() || '',
         };
 
         async function executeCommand(input) {
@@ -231,7 +232,9 @@
             if (!cmd) return;
 
             if (chineseMode && !cmd.includes('/cn')) {
-                cmd = cmd.replace(/^(\w+)/, '$1/cn');
+                if (chineseCmds.includes(cmd.split('/')[0])) {
+                    cmd = cmd.replace(/^(\w+)/, '$1/cn');
+                }
             }
 
             addOutput(`<span class="terminal-prompt">Rorg:~$</span>${cmd}`);
