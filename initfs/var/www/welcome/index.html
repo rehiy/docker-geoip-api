@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoIP 模拟终端 - Rorg API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: #2d2d30;
+            padding: 10px 15px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .close {
+            background: #ff5f56;
+        }
+
+        .minimize {
+            background: #ffbd2e;
+        }
+
+        .maximize {
+            background: #27ca3f;
+        }
+
+        .terminal-title {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .terminal-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .terminal-output {
+            white-space: pre-wrap;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .terminal-prompt {
+            color: #4ec9b0;
+            margin-right: 8px;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #d4d4d4;
+            font: inherit;
+            flex: 1;
+            caret-color: #d4d4d4;
+        }
+
+        .terminal-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .json-output {
+            color: #ce9178;
+        }
+
+        .help-command {
+            color: #569cd6;
+        }
+
+        .loading {
+            color: #569cd6;
+            opacity: 0.8;
+        }
+
+        .loading::after {
+            content: '';
+            animation: loading-dots 1.5s infinite;
+        }
+
+        @keyframes loading-dots {
+            0% {
+                content: '';
+            }
+
+            25% {
+                content: '.';
+            }
+
+            50% {
+                content: '..';
+            }
+
+            75% {
+                content: '...';
+            }
+
+            100% {
+                content: '';
+            }
+        }
+
+        .api-url {
+            position: fixed;
+            top: 10px;
+            right: 15px;
+            background: rgba(45, 45, 48, 0.9);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .btn {
+            position: fixed;
+            bottom: 20px;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 12px;
+        }
+
+        .clear-button {
+            right: 20px;
+            background: #0e639c;
+        }
+
+        .clear-button:hover {
+            background: #1177bb;
+        }
+
+        .chinese-toggle {
+            right: 100px;
+            background: #14892c;
+        }
+
+        .chinese-toggle:hover {
+            background: #1db954;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="terminal-header">
+        <div class="terminal-buttons">
+            <div class="terminal-button close"></div>
+            <div class="terminal-button minimize"></div>
+            <div class="terminal-button maximize"></div>
+        </div>
+        <div class="terminal-title">GeoIP 模拟终端 - Terminal Simulator</div>
+    </div>
+
+    <div class="api-url" id="apiUrl"></div>
+
+    <div class="terminal-container" id="terminal">
+        <div class="terminal-output" id="welcome"></div>
+        <div class="terminal-input-line">
+            <span class="terminal-prompt">Rorg:~$</span>
+            <input type="text" class="terminal-input" id="commandInput" autocomplete="off" spellcheck="false">
+            <span class="cursor">▋</span>
+        </div>
+    </div>
+
+    <button class="btn chinese-toggle" onclick="toggleLanguage()">中文/EN</button>
+    <button class="btn clear-button" onclick="clearTerminal()">Clear</button>
+
+    <script>
+        let historyIndex = -1;
+        let commandHistory = [];
+        let chineseMode = false;
+
+        async function fetchApiData(endpoint) {
+            try {
+                const response = await fetch(`${location.origin}${endpoint}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                return await response.text();
+            } catch (error) {
+                return chineseMode
+                    ? `错误: 无法连接到 API (${error.message})`
+                    : `Error: Failed to fetch API data (${error.message})`;
+            }
+        }
+
+        const commands = {
+            help: () => fetchApiData(chineseMode ? '/help/cn' : '/help'),
+            ip: () => fetchApiData('/ip'),
+            info: () => fetchApiData(chineseMode ? '/info/cn' : '/info'),
+            json: () => fetchApiData(chineseMode ? '/json/cn' : '/json'),
+            simple: () => fetchApiData(chineseMode ? '/simple/cn' : '/simple'),
+            asn: () => fetchApiData('/asn'),
+            isp: () => fetchApiData('/isp'),
+            usage_type: () => fetchApiData('/usage_type'),
+            country_code: () => fetchApiData('/country_code'),
+            country: () => fetchApiData(chineseMode ? '/country/cn' : '/country'),
+            province: () => fetchApiData(chineseMode ? '/province/cn' : '/province'),
+            city: () => fetchApiData(chineseMode ? '/city/cn' : '/city'),
+            district: () => fetchApiData(chineseMode ? '/district/cn' : '/district'),
+            longitude: () => fetchApiData('/longitude'),
+            latitude: () => fetchApiData('/latitude'),
+            timezone: () => fetchApiData('/timezone'),
+            ua: () => fetchApiData('/ua'),
+            forwarded: () => fetchApiData('/forwarded'),
+            status: () => fetchApiData('/status'),
+            report: () => fetchApiData('/report'),
+            clear: () => { clearTerminal(); return ''; },
+            cls: () => { clearTerminal(); return ''; }
+        };
+
+        async function executeCommand(input) {
+            const terminal = document.getElementById('terminal');
+
+            addOutput(`<span class="terminal-prompt">Rorg:~$</span>${input}`);
+            const loadingDiv = addOutput(chineseMode ? '正在加载' : 'Loading', 'loading');
+
+            let command = input.trim().toLowerCase();
+            if (command.startsWith('/')) command = command.substring(1);
+
+            let output = '';
+            if (command.includes('/')) {
+                const [baseCmd, param] = command.split('/');
+                if (param === 'cn' && commands[baseCmd]) {
+                    const oldMode = chineseMode;
+                    chineseMode = true;
+                    output = await commands[baseCmd]();
+                    chineseMode = oldMode;
+                } else if (isValidIP(param)) {
+                    const endpoint = chineseMode ? `/${baseCmd}/cn/${param}` : `/${baseCmd}/${param}`;
+                    output = `查询 IP: ${param}\n` + await fetchApiData(endpoint);
+                } else {
+                    output = await fetchApiData(`/${baseCmd}/${param}`);
+                }
+            } else {
+                output = commands[command]
+                    ? await commands[command]()
+                    : command === ''
+                        ? ''
+                        : getCommandNotFound(command);
+            }
+
+            // 移除加载状态并显示结果
+            terminal.removeChild(loadingDiv);
+            if (output) addOutput(output, output.trim().startsWith('{') ? 'json-output' : '');
+
+            // 更新历史记录
+            if (input.trim()) {
+                commandHistory.unshift(input.trim());
+                if (commandHistory.length > 50) commandHistory.pop();
+            }
+            historyIndex = -1;
+        }
+
+        function addOutput(text, className = '') {
+            const terminal = document.getElementById('terminal');
+            const output = document.createElement('div');
+            output.className = `terminal-output ${className}`;
+            output.innerHTML = text;
+            terminal.insertBefore(output, terminal.lastElementChild);
+            terminal.scrollTop = terminal.scrollHeight;
+            return output;
+        }
+
+        function getCommandNotFound(command) {
+            return chineseMode
+                ? `命令未找到: ${command}\n输入 'help' 查看可用命令`
+                : `Command not found: ${command}\nType 'help' to see available commands`;
+        }
+
+        function isValidIP(ip) {
+            return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ip);
+        }
+
+        function clearTerminal() {
+            document.querySelectorAll('.terminal-output').forEach(el => el.remove());
+        }
+
+        function toggleLanguage() {
+            chineseMode = !chineseMode;
+            addOutput(chineseMode ? '已切换到中文模式' : 'Switched to English mode');
+        }
+
+        // 键盘事件处理
+        document.getElementById('commandInput').addEventListener('keydown', async function (e) {
+            if (e.key === 'Enter') {
+                const input = this.value;
+                this.value = '';
+                this.disabled = true;
+
+                try {
+                    await executeCommand(input);
+                } catch (error) {
+                    addOutput(chineseMode ? `执行错误: ${error.message}` : `Execution error: ${error.message}`);
+                } finally {
+                    this.disabled = false;
+                    this.focus();
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    this.value = commandHistory[++historyIndex] || '';
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    this.value = commandHistory[--historyIndex] || '';
+                } else if (historyIndex === 0) {
+                    historyIndex = -1;
+                    this.value = '';
+                }
+            }
+        });
+
+        // 初始化
+        const welcomeMessage = [
+            '欢迎使用 GeoIP 模拟终端',
+            'Welcome to GeoIP Terminal Simulator', ''
+        ].join('\n');
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.getElementById('welcome').innerHTML = welcomeMessage;
+        document.getElementById('apiUrl').textContent = `API Base: ${location.origin}/`;
+        document.getElementById('terminal').addEventListener('click', () => document.getElementById('commandInput').focus());
+        document.getElementById('commandInput').focus();
+
+        executeCommand('info');
+    </script>
+</body>
+
+</html>
