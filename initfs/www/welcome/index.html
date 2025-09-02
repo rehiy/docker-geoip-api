@@ -21,7 +21,7 @@
             flex-direction: column;
         }
 
-        .terminal-header {
+        .header {
             background: #2d2d30;
             padding: 10px 15px;
             border-bottom: 1px solid #3e3e42;
@@ -72,15 +72,15 @@
             cursor: pointer;
         }
 
-        .close {
+        .terminal-button.close {
             background: #ff5f56;
         }
 
-        .minimize {
+        .terminal-button.minimize {
             background: #ffbd2e;
         }
 
-        .maximize {
+        .terminal-button.maximize {
             background: #27ca3f;
         }
 
@@ -93,12 +93,6 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-        }
-
-        .terminal-output {
-            white-space: pre-wrap;
-            line-height: 1.4;
-            margin-bottom: 10px;
         }
 
         .terminal-input-line {
@@ -127,12 +121,14 @@
             cursor: not-allowed;
         }
 
-        .json-output {
-            color: #ce9178;
+        .terminal-output {
+            white-space: pre-wrap;
+            line-height: 1.4;
+            margin-bottom: 10px;
         }
 
-        .help-command {
-            color: #569cd6;
+        .json-output {
+            color: #ce9178;
         }
 
         .loading {
@@ -187,31 +183,23 @@
         .clear-button:hover {
             background: #1177bb;
         }
-
-        .chinese-toggle {
-            right: 100px;
-            background: #14892c;
-        }
-
-        .chinese-toggle:hover {
-            background: #1db954;
-        }
     </style>
 </head>
 
 <body>
-    <div class="terminal-header">
+    <div class="header">
         <div class="header-left">
             <div class="terminal-buttons">
                 <div class="terminal-button close"></div>
                 <div class="terminal-button minimize"></div>
                 <div class="terminal-button maximize"></div>
             </div>
-            <div class="terminal-title">GeoIP 模拟终端 - Terminal Simulator</div>
+            <div class="terminal-title">GeoIP 模拟终端</div>
         </div>
         <a href="https://github.com/rehiy/docker-geoip-api" target="_blank" class="github-link">
             <svg viewBox="0 0 24 24">
-                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                <path
+                    d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
             </svg>
             GitHub
         </a>
@@ -226,18 +214,53 @@
         </div>
     </div>
 
-    <button class="btn chinese-toggle" onclick="toggleLanguage()">中文/EN</button>
-    <button class="btn clear-button" onclick="clearTerminal()">Clear</button>
+    <button class="btn clear-button" onclick="clearTerminal()">清屏/Clear</button>
 
-    <script>
+    <script type="text/javascript">
         let historyIndex = -1;
         let commandHistory = [];
-        let chineseMode = false;
+        let chineseMode = navigator.language.startsWith('zh');
+
+        const commands = {
+            clear: () => { clearTerminal(); return ''; },
+            cls: () => { clearTerminal(); return ''; }
+        };
+
+        async function executeCommand(input) {
+            let cmd = input.trim().replace(/^[/?]+/, '').toLowerCase();
+            if (!cmd) return;
+
+            if (chineseMode && !cmd.includes('/cn')) {
+                cmd = cmd.replace(/^(\w+)/, '$1/cn');
+            }
+
+            addOutput(`<span class="terminal-prompt">Rorg:~$</span>${cmd}`);
+            const loadingDiv = addOutput(chineseMode ? '正在加载' : 'Loading', 'loading');
+
+            const terminal = document.getElementById('terminal');
+            const output = commands[cmd] ? commands[cmd]() : (await fetchApiData(cmd));
+
+            // 移除加载状态并显示结果
+            terminal.removeChild(loadingDiv);
+            if (output && output.trim()) {
+                addOutput(output, output.trim().startsWith('{') ? 'json-output' : '');
+            }
+
+            // 更新历史记录
+            historyIndex = -1;
+            commandHistory.unshift(cmd);
+            commandHistory.length > 50 && commandHistory.pop();
+        }
 
         async function fetchApiData(endpoint) {
             try {
-                const response = await fetch(`${location.origin}${endpoint}`);
-                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                const response = await fetch(`${location.origin}/${endpoint}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        return getCommandNotFound(endpoint);
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 return await response.text();
             } catch (error) {
                 return chineseMode
@@ -246,79 +269,12 @@
             }
         }
 
-        const commands = {
-            help: () => fetchApiData(chineseMode ? '/help/cn' : '/help'),
-            ip: () => fetchApiData('/ip'),
-            info: () => fetchApiData(chineseMode ? '/info/cn' : '/info'),
-            json: () => fetchApiData(chineseMode ? '/json/cn' : '/json'),
-            simple: () => fetchApiData(chineseMode ? '/simple/cn' : '/simple'),
-            asn: () => fetchApiData('/asn'),
-            isp: () => fetchApiData('/isp'),
-            usage_type: () => fetchApiData('/usage_type'),
-            country_code: () => fetchApiData('/country_code'),
-            country: () => fetchApiData(chineseMode ? '/country/cn' : '/country'),
-            province: () => fetchApiData(chineseMode ? '/province/cn' : '/province'),
-            city: () => fetchApiData(chineseMode ? '/city/cn' : '/city'),
-            district: () => fetchApiData(chineseMode ? '/district/cn' : '/district'),
-            longitude: () => fetchApiData('/longitude'),
-            latitude: () => fetchApiData('/latitude'),
-            timezone: () => fetchApiData('/timezone'),
-            ua: () => fetchApiData('/ua'),
-            forwarded: () => fetchApiData('/forwarded'),
-            status: () => fetchApiData('/status'),
-            report: () => fetchApiData('/report'),
-            clear: () => { clearTerminal(); return ''; },
-            cls: () => { clearTerminal(); return ''; }
-        };
-
-        async function executeCommand(input) {
-            const terminal = document.getElementById('terminal');
-
-            addOutput(`<span class="terminal-prompt">Rorg:~$</span>${input}`);
-            const loadingDiv = addOutput(chineseMode ? '正在加载' : 'Loading', 'loading');
-
-            let command = input.trim().toLowerCase();
-            if (command.startsWith('/')) command = command.substring(1);
-
-            let output = '';
-            if (command.includes('/')) {
-                const [baseCmd, param] = command.split('/');
-                if (param === 'cn' && commands[baseCmd]) {
-                    const oldMode = chineseMode;
-                    chineseMode = true;
-                    output = await commands[baseCmd]();
-                    chineseMode = oldMode;
-                } else if (isValidIP(param)) {
-                    const endpoint = chineseMode ? `/${baseCmd}/cn/${param}` : `/${baseCmd}/${param}`;
-                    output = `查询 IP: ${param}\n` + await fetchApiData(endpoint);
-                } else {
-                    output = await fetchApiData(`/${baseCmd}/${param}`);
-                }
-            } else {
-                output = commands[command]
-                    ? await commands[command]()
-                    : command === ''
-                        ? ''
-                        : getCommandNotFound(command);
-            }
-
-            // 移除加载状态并显示结果
-            terminal.removeChild(loadingDiv);
-            if (output) addOutput(output, output.trim().startsWith('{') ? 'json-output' : '');
-
-            // 更新历史记录
-            if (input.trim()) {
-                commandHistory.unshift(input.trim());
-                if (commandHistory.length > 50) commandHistory.pop();
-            }
-            historyIndex = -1;
-        }
-
         function addOutput(text, className = '') {
-            const terminal = document.getElementById('terminal');
             const output = document.createElement('div');
             output.className = `terminal-output ${className}`;
             output.innerHTML = text;
+
+            const terminal = document.getElementById('terminal');
             terminal.insertBefore(output, terminal.lastElementChild);
             terminal.scrollTop = terminal.scrollHeight;
             return output;
@@ -330,25 +286,16 @@
                 : `Command not found: ${command}\nType 'help' to see available commands`;
         }
 
-        function isValidIP(ip) {
-            return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ip);
-        }
-
         function clearTerminal() {
             document.querySelectorAll('.terminal-output').forEach(el => el.remove());
-        }
-
-        function toggleLanguage() {
-            chineseMode = !chineseMode;
-            addOutput(chineseMode ? '已切换到中文模式' : 'Switched to English mode');
         }
 
         // 键盘事件处理
         document.getElementById('commandInput').addEventListener('keydown', async function (e) {
             if (e.key === 'Enter') {
                 const input = this.value;
-                this.value = '';
                 this.disabled = true;
+                this.value = '';
 
                 try {
                     await executeCommand(input);
@@ -376,7 +323,7 @@
 
         // 初始化
         document.addEventListener('contextmenu', e => e.preventDefault());
-        document.getElementById('welcome').innerHTML = ['欢迎使用 GeoIP 模拟终端', 'Welcome to GeoIP Terminal Simulator', ''].join('\n');
+        document.getElementById('welcome').innerHTML = '欢迎使用 GeoIP 模拟终端 \nWelcome to GeoIP Terminal Simulator \n';
         document.getElementById('terminal').addEventListener('click', () => document.getElementById('commandInput').focus());
         document.getElementById('commandInput').focus();
 
