@@ -223,8 +223,8 @@
         let chineseCmds = 'help,info,json,simple,country,province,city,district'
 
         const commands = {
-            cls: () => clearTerminal() || '',
-            clear: () => clearTerminal() || '',
+            cls: () => clearTerminal(),
+            clear: () => clearTerminal(),
         };
 
         async function executeCommand(input) {
@@ -238,13 +238,7 @@
             }
 
             addOutput(`<span class="terminal-prompt">Rorg:~$</span>${cmd}`);
-            const loadingDiv = addOutput(chineseMode ? '正在加载' : 'Loading', 'loading');
-
-            const terminal = document.getElementById('terminal');
             const output = commands[cmd] ? commands[cmd]() : (await fetchApiData(cmd));
-
-            // 移除加载状态并显示结果
-            terminal.removeChild(loadingDiv);
             if (output && output.trim()) {
                 addOutput(output, output.trim().startsWith('{') ? 'json-output' : '');
             }
@@ -256,6 +250,7 @@
         }
 
         async function fetchApiData(endpoint) {
+            const loadingDiv = addOutput(chineseMode ? '正在加载' : 'Loading', 'loading');
             try {
                 const url = `${location.origin}/${endpoint}`;
                 const response = await fetch(url);
@@ -271,6 +266,9 @@
                 return chineseMode
                     ? `错误: 无法连接到 API (${error.message})`
                     : `Error: Failed to fetch API data (${error.message})`;
+            } finally {
+                const terminal = document.getElementById('terminal');
+                terminal.removeChild(loadingDiv);
             }
         }
 
@@ -282,6 +280,7 @@
             const terminal = document.getElementById('terminal');
             terminal.insertBefore(output, terminal.lastElementChild);
             terminal.scrollTop = terminal.scrollHeight;
+
             return output;
         }
 
