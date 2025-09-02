@@ -4,7 +4,8 @@
 wkit geoip-update
 wkit module-add goaccess
 
-cp -a /tmp/etc /
+cp -a /tmp/etc/. /etc/
+cp -a /tmp/www/. /var/www/
 
 # clean system
 
