@@ -257,14 +257,16 @@
 
         async function fetchApiData(endpoint) {
             try {
-                const response = await fetch(`${location.origin}/${endpoint}`);
+                const url = `${location.origin}/${endpoint}`;
+                const response = await fetch(url);
                 if (!response.ok) {
                     if (response.status === 404) {
                         return getCommandNotFound(endpoint);
                     }
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                return await response.text();
+                const text = await response.text();
+                return chineseMode ? `${text}\n接口地址: ${url}` : `${text}\nAPI Endpoint: ${url}`;
             } catch (error) {
                 return chineseMode
                     ? `错误: 无法连接到 API (${error.message})`
