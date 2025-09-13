@@ -6,7 +6,7 @@
 
 - 功能预览: <https://ipip.rehi.org>
 - 支持参数: <https://ipip.rehi.org/help>
-- 日志报告: <https://ipip.rehi.org/report> 账号：`report`，密码：`GOACCESS_REPORT_PWD` 的值
+- 日志报告: <https://ipip.rehi.org/report> ｜ 默认账号/密码 `report/report`
 
 ## 快速启动
 
