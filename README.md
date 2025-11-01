@@ -13,7 +13,7 @@
 使用如下代码启动后，浏览器访问 <http://your-docker-ip/help>
 
 ```shell
-  docker run -d -p 80:80 -p 443:443 rehiy/geoip-api
+  docker run -d -p 80:80 -p 443:443 rehiy/geoip-api:flex
 ```
 
 ## 完整配置
@@ -39,5 +39,5 @@ docker run -d -p 80:80 -p 443:443 \
     -v ./data/city.mmdb:/usr/share/geoip/city-lite.mmdb \
     -v ./data/report:/var/lib/goaccess \
     -v ./data/logs:/var/log/nginx \
-    rehiy/geoip-api
+    rehiy/geoip-api:flex
 ```

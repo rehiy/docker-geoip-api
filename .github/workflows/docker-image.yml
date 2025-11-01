@@ -32,4 +32,4 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64,linux/arm
-          tags: rehiy/geoip-api:latest
+          tags: rehiy/geoip-api:flex
